@@ -10,6 +10,7 @@ from picamera2.outputs import FileOutput
 # from picamera2.outputs import StreamingOutput
 from picamera2.encoders import Quality
 import websockets
+from Motor import Motor
 
 class StreamingOutput(io.BufferedIOBase):
     def __init__(self):
@@ -35,6 +36,28 @@ class RobotServer:
         # Control flags
         self.is_running = True
         
+        self.motor = Motor()
+
+    async def forward(self):
+        PWM.setMotorModel(2000,2000,2000,2000)
+        await self.finish(dur=2)
+
+    async def reverse(self):
+        PWM.setMotorModel(-2000, -2000, -2000, -2000)
+        await self.finish(dur=2)
+
+    async def rot_right(self):
+        PWM.setMotorModel(1000, 1000, -1000, -1000)
+        await self.finish(dur=1)
+
+    async def rot_left(self):
+        PWM.setMotorModel(-1000, -1000, 1000, 1000)
+        await self.finish(dur=1)
+
+    async def finish(self, dur):
+        await asyncio.sleep(dur)
+        PWM.setMotorModel(0,0,0,0)
+
     async def send_sensor_data(self, websocket):
         """Send ultrasonic sensor readings periodically"""
         while self.is_running:
@@ -77,20 +100,16 @@ class RobotServer:
     def handle_command(self, command):
         """Process movement commands"""
         if command == "forward":
-            # INSERT FORWARD MOVEMENT CODE HERE
-            pass
+            asyncio.create_task(self.forward())
         
         elif command == "reverse":
-            # INSERT REVERSE MOVEMENT CODE HERE
-            pass
+            asyncio.create_task(self.reverse())
         
         elif command == "rot_right":
-            # INSERT ROTATION RIGHT CODE HERE
-            pass
+            asyncio.create_task(self.rot_right())
         
         elif command == "rot_left":
-            # INSERT ROTATION LEFT CODE HERE
-            pass
+            asyncio.create_task(self.rot_left())
     
     async def handle_client(self, websocket):
         """Handle individual client connection"""
@@ -127,6 +146,37 @@ class RobotServer:
         async with websockets.serve(self.handle_client, host, port):
             print(f"Server started on ws://{host}:{port}")
             await asyncio.Future()  # Run forever
+
+def Rotate(self,n):
+        angle = n
+        bat_compensate =7.5/(self.adc.recvADC(2)*3)
+        while True:
+            W = 2000
+
+            VY = int(2000 * math.cos(math.radians(angle)))
+            VX = -int(2000 * math.sin(math.radians(angle)))
+
+            FR = VY - VX + W
+            FL = VY + VX - W
+            BL = VY - VX - W
+            BR = VY + VX + W
+
+            PWM.setMotorModel(FL, BL, FR, BR)
+            print("rotating")
+            time.sleep(5*self.time_proportion*bat_compensate/1000)
+            angle -= 5
+
+PWM=Motor()          
+def loop(): 
+    PWM.setMotorModel(2000,2000,2000,2000)       #Forward
+    time.sleep(3)
+    PWM.setMotorModel(-2000,-2000,-2000,-2000)   #Back
+    time.sleep(3)
+    PWM.setMotorModel(-500,-500,2000,2000)       #Left 
+    time.sleep(3)
+    PWM.setMotorModel(2000,2000,-500,-500)       #Right    
+    time.sleep(3)
+    PWM.setMotorModel(0,0,0,0)                   #Stop
 
 if __name__ == "__main__":
     server = RobotServer()
