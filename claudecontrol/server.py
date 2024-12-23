@@ -40,19 +40,19 @@ class RobotServer:
 
     async def forward(self):
         PWM.setMotorModel(2000,2000,2000,2000)
-        await self.finish(dur=1.3)
+        await self.finish(dur=1)
 
     async def reverse(self):
         PWM.setMotorModel(-2000, -2000, -2000, -2000)
-        await self.finish(dur=1.3)
+        await self.finish(dur=1)
 
     async def rot_right(self):
         PWM.setMotorModel(2000, 2000, -2000, -2000)
-        await self.finish(dur=0.7)
+        await self.finish(dur=0.4)
 
     async def rot_left(self):
         PWM.setMotorModel(-2000, -2000, 2000, 2000)
-        await self.finish(dur=0.7)
+        await self.finish(dur=0.4)
 
     async def finish(self, dur):
         await asyncio.sleep(dur)
