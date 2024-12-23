@@ -169,6 +169,8 @@ class RobotServer:
             self.camera.start_recording(self.encoder, FileOutput(self.output), quality=Quality.VERY_HIGH)
             logger.info("Camera recording started")
             
+            frame_wait = 1/2 # 2 fps
+
             while self.is_running and websocket in self.connected_clients:
                 try:
                     with self.output.condition:
@@ -191,6 +193,8 @@ class RobotServer:
                     }
                     await websocket.send(json.dumps(frame_data))
                     
+                    await asyncio.sleep(frame_wait)
+
                     frames_sent += 1
                     if frames_sent % 100 == 0:  # Log every 100 frames
                         logger.debug(f"Sent {frames_sent} frames")
