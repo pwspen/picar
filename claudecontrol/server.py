@@ -4,6 +4,7 @@ import struct
 import io
 import logging
 import traceback
+import time
 from threading import Condition, Lock
 from gpiozero import DistanceSensor
 from picamera2 import Picamera2
@@ -30,17 +31,17 @@ class StreamingOutput(io.BufferedIOBase):
         self.condition = Condition()
         self.last_write_time = 0
         self.write_count = 0
-        self.lock = Lock()  # Add lock for thread safety
+        self.lock = Lock()
 
     def write(self, buf):
         try:
-            with self.lock:  # Use lock for thread-safe counter updates
+            with self.lock:
                 self.write_count += 1
-                current_time = asyncio.get_event_loop().time()
+                current_time = time.time()  # Use time.time() instead of asyncio.get_event_loop().time()
                 
                 if self.last_write_time:
                     time_diff = current_time - self.last_write_time
-                    if time_diff > 1.0:  # Log if frame interval > 1 second
+                    if time_diff > 1.0:
                         logger.warning(f"Long frame interval: {time_diff:.2f}s")
                 
                 self.last_write_time = current_time
@@ -49,7 +50,7 @@ class StreamingOutput(io.BufferedIOBase):
                 self.frame = buf
                 self.condition.notify_all()
                 
-            if self.write_count % 100 == 0:  # Log every 100 frames
+            if self.write_count % 100 == 0:
                 logger.debug(f"Frames written: {self.write_count}")
                 
         except Exception as e:
