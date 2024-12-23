@@ -92,7 +92,7 @@ class RobotServer:
             # INSERT ROTATION LEFT CODE HERE
             pass
     
-    async def handle_client(self, websocket, path):
+    async def handle_client(self, websocket):
         """Handle individual client connection"""
         print(f"Client connected from {websocket.remote_address}")
         
