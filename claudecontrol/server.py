@@ -281,8 +281,20 @@ class RobotServer:
             logger.error(traceback.format_exc())
             raise
 
+def cleanup_gpio():
+    """Clean up all GPIO resources"""
+    try:
+        import RPi.GPIO as GPIO
+        GPIO.cleanup()
+        logger.info("GPIO cleanup completed")
+    except Exception as e:
+        logger.error(f"Error during GPIO cleanup: {e}")
+
 if __name__ == "__main__":
     try:
+        # Cleanup any existing GPIO connections first
+        cleanup_gpio()
+        
         server = RobotServer()
         asyncio.run(server.start_server())
     except KeyboardInterrupt:
@@ -290,3 +302,6 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error(f"Fatal error in main: {e}")
         logger.error(traceback.format_exc())
+    finally:
+        # Always cleanup on exit
+        cleanup_gpio()
