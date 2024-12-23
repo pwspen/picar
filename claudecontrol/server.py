@@ -47,11 +47,11 @@ class RobotServer:
         await self.finish(dur=2)
 
     async def rot_right(self):
-        PWM.setMotorModel(1000, 1000, -1000, -1000)
+        PWM.setMotorModel(2000, 2000, -2000, -2000)
         await self.finish(dur=1)
 
     async def rot_left(self):
-        PWM.setMotorModel(-1000, -1000, 1000, 1000)
+        PWM.setMotorModel(-2000, -2000, 2000, 2000)
         await self.finish(dur=1)
 
     async def finish(self, dur):
