@@ -100,15 +100,19 @@ class RobotServer:
     def handle_command(self, command):
         """Process movement commands"""
         if command == "forward":
+            print('Moving fwd')
             asyncio.create_task(self.forward())
         
         elif command == "reverse":
+            print('Moving rev')
             asyncio.create_task(self.reverse())
         
         elif command == "rot_right":
+            print('Roting right')
             asyncio.create_task(self.rot_right())
         
         elif command == "rot_left":
+            print('Roting left')
             asyncio.create_task(self.rot_left())
     
     async def handle_client(self, websocket):
