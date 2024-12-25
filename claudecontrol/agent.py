@@ -14,7 +14,7 @@ import asyncio
 import base64
 import mimetypes
 
-from server import LocalRobot
+from claudecontrol.api import LocalRobot
 
 class Models:
     llama90b = 'meta-llama/llama-3.2-90b-vision-instruct'
