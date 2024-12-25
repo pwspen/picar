@@ -9,10 +9,10 @@ from openai.types.chat.chat_completion_content_part_image_param import (
     ImageURL
 )
 import os
+import shutil
 from typing import List, Literal
 import asyncio
-import base64
-import mimetypes
+import json
 
 from claudecontrol.api import LocalRobot
 
@@ -26,10 +26,25 @@ class ResponseType(BaseModel):
     command: Literal["forward", "reverse", "rot_right", "rot_left"]
     notes: str
 
+api_key_fname = 'api_key.json'
+if not os.path.exists(api_key_fname):
+    shutil.copy(api_key_fname + '.template', api_key_fname)
+    print('api_key.json created, please paste API key into it. You should have "OPENROUTER_API_KEY": "<KEY>"')
+    exit(1)
+
+with open(api_key_fname) as f:
+    try:
+        api_key = json.load(f)["OPENROUTER_API_KEY"]
+        if "paste" in api_key: # still set to paste_key_here
+            raise KeyError
+    except KeyError:
+        print('Please paste your API key into api_key.json. You should have "OPENROUTER_API_KEY": "<KEY>"')
+        exit(1)
+
 model = OpenAIModel(
     model_name=Models.qwenvl,
     base_url='https://openrouter.ai/api/v1',
-    api_key=os.getenv('OPENROUTER_API_KEY')
+    api_key=api_key
 )
 target = 'parrot statue'
 agent = Agent(model,
